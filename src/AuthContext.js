@@ -11,7 +11,6 @@ export const AuthProvider = ({ children }) => {
     const storedToken = localStorage.getItem("authToken");
     if (storedToken) {
       const userIDFromToken = decodeToken(storedToken);
-      console.log("USERID", userIDFromToken);
       axios
         .get(
           `http://localhost:8800/auth?id=${userIDFromToken.id}`,

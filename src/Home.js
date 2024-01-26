@@ -24,19 +24,47 @@ export default function Home() {
 
   return (
     <div>
-      {user && <h1>{user.name}</h1>}
-      {isAuthenticated ? <Link to="/create">create</Link> : ""}
-
-      {!isAuthenticated ? <Link to="/login">login</Link> : ""}
+      <div className="flex justify-between items-center	 p-20px">
+        <h1 className="text-blue-600 text-3xl">Logo</h1>
+        <div className="flex pt-2">
+          {user && <h1>{user.name}</h1>}
+          {isAuthenticated ? (
+            <button
+              className="block w-24 mr-4 text-center	 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1  rounded"
+              onClick={handleLogout}
+            >
+              logout
+            </button>
+          ) : (
+            ""
+          )}
+          {!isAuthenticated ? (
+            <Link
+              className="block w-24 mr-4 text-center	 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1  rounded"
+              to="/login"
+            >
+              login
+            </Link>
+          ) : (
+            ""
+          )}
+          {!isAuthenticated ? (
+            <Link
+              className=" block w-24 text-center	 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 rounded"
+              to="/signup"
+            >
+              signup
+            </Link>
+          ) : (
+            ""
+          )}
+        </div>
+      </div>
+      <br /> {isAuthenticated ? <Link to="/create">create</Link> : ""}
       <br />
-      {!isAuthenticated ? <Link to="/signup">signup</Link> : ""}
-      <br />
-      {isAuthenticated ? <button onClick={handleLogout}>logout</button> : ""}
-
       <br />
       <br />
-      <br />
-      {isAuthenticated ? <Resipe /> : ""}
+      <Resipe />
     </div>
   );
 }

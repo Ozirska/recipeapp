@@ -1,9 +1,16 @@
-import React from "react";
+import { useState } from "react";
 import { Formik, Form, useField, Field } from "formik";
 import * as yup from "yup";
 import { useAuth } from "./AuthContext";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import { Client, Storage } from "appwrite";
+import { v4 as uuidv4 } from "uuid";
+
+const client = new Client()
+  .setEndpoint("https://cloud.appwrite.io/v1")
+  .setProject("65b225f35a143c2cdccd");
+const storage = new Storage(client);
 
 const validationSchema = yup.object().shape({
   title: yup.string().required("Title is required"),
@@ -56,6 +63,8 @@ const CustomInputIngredient = ({ name, placeholder }) => {
 export default function CreateRecipeForm() {
   const { user } = useAuth();
 
+  const [recipeimag, setRecipeimg] = useState("");
+
   const navigate = useNavigate();
 
   const initialValues = {
@@ -64,10 +73,33 @@ export default function CreateRecipeForm() {
     ingredients: [{ name: "", quantity: "" }],
   };
 
+  const uploadImage = (img) => {
+    console.log(img);
+
+    const promise = storage
+      .createFile(
+        "65b2283aa0c90c4f1714", // Your bucket ID
+        uuidv4(),
+        document.getElementById("uploader").files[0]
+      )
+      .then(
+        function (response) {
+          const fileId = response["$id"];
+          const publicURL = `https://cloud.appwrite.io/v1/storage/buckets/65b2283aa0c90c4f1714/files/${fileId}/view?project=65b225f35a143c2cdccd&mode=admin`;
+          setRecipeimg(publicURL);
+        },
+        function (error) {
+          console.log(error); // Failure
+        }
+      );
+  };
+
   const handleSubmit = (values) => {
+    if (recipeimag === "") return;
+
     values.ingredients = JSON.stringify(values.ingredients);
 
-    let res = { ...values, userID: user.id, photo_url: "lffkjnerlknmr" };
+    let res = { ...values, userID: user.id, photo_url: recipeimag };
     console.log(res);
 
     axios
@@ -91,6 +123,15 @@ export default function CreateRecipeForm() {
     >
       {({ setFieldValue, values }) => (
         <Form>
+          <input
+            type="file"
+            id="uploader"
+            name="photo"
+            accept="image/*"
+            onChange={(event) => uploadImage(event.currentTarget.files[0])}
+          />
+          <br />
+          <br />
           <CustomInput type="text" name="title" placeholder="Recipe Title" />
           <br />
           <br />
