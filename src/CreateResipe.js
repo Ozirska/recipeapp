@@ -3,7 +3,7 @@ import { Formik, Form, useField, Field } from "formik";
 import * as yup from "yup";
 import { useAuth } from "./AuthContext";
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Client, Storage } from "appwrite";
 import { v4 as uuidv4 } from "uuid";
 
@@ -32,7 +32,9 @@ const CustomInput = ({ as, ...props }) => {
         <textarea
           {...field}
           {...props}
-          className={meta.touched && meta.error ? "input-error" : ""}
+          className={`w-full h-12 px-3 rounded-md border ${
+            meta.touched && meta.error ? "border-red-500" : "border-gray-300"
+          } focus:outline-none focus:border-blue-500`}
         />
       ) : (
         <input
@@ -115,80 +117,87 @@ export default function CreateRecipeForm() {
   };
 
   return (
-    <Formik
-      initialValues={initialValues}
-      validateOnChange={true}
-      validationSchema={validationSchema}
-      onSubmit={handleSubmit}
-    >
-      {({ setFieldValue, values }) => (
-        <Form>
-          <input
-            type="file"
-            id="uploader"
-            name="photo"
-            accept="image/*"
-            onChange={(event) => uploadImage(event.currentTarget.files[0])}
-          />
-          <br />
-          <br />
-          <CustomInput type="text" name="title" placeholder="Recipe Title" />
-          <br />
-          <br />
+    <div className="mx-auto min-h-screen p-5 bg-gradient-to-b from-green-50 via-lime-50 to-teal-50">
+      <h1 className="text-center mt-9">+ Create new recipe +</h1>
 
-          <CustomInput
-            as="textarea"
-            name="description"
-            placeholder="Recipe Description"
-          />
+      <br />
+      <br />
+      <Formik
+        initialValues={initialValues}
+        validateOnChange={true}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
+      >
+        {({ setFieldValue, values }) => (
+          <Form className="flex flex-col mx-auto w-[90%] md:w-[60%] lg:w-[40%] xl:w-[40%]">
+            <input
+              type="file"
+              id="uploader"
+              name="photo"
+              accept="image/*"
+              onChange={(event) => uploadImage(event.currentTarget.files[0])}
+            />
+            <br />
+            <br />
+            <CustomInput type="text" name="title" placeholder="Recipe Title" />
+            <br />
+            <br />
 
-          <br />
-          <br />
+            <CustomInput
+              as="textarea"
+              name="description"
+              placeholder="Recipe Description"
+            />
 
-          <div>
-            <label>Ingredients</label>
-            {values.ingredients.map((ingredient, index) => (
-              <div key={index}>
-                <CustomInputIngredient
-                  name={`ingredients[${index}].name`}
-                  placeholder="Ingredient name..."
-                />
-                <CustomInputIngredient
-                  name={`ingredients[${index}].quantity`}
-                  placeholder="Quantity..."
-                />
-                {index > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFieldValue(
-                        "ingredients",
-                        values.ingredients.filter((_, i) => i !== index)
-                      );
-                    }}
-                  >
-                    x
-                  </button>
-                )}
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={() => {
-                setFieldValue("ingredients", [
-                  ...values.ingredients,
-                  { name: "", quantity: "" },
-                ]);
-              }}
-            >
-              Add Ingredient
-            </button>
-          </div>
+            <br />
+            <br />
 
-          <br />
-          <button type="submit">Create Recipe</button>
-        </Form>
-      )}
-    </Formik>
+            <div>
+              <label>Ingredients:</label>
+              <br />
+              {values.ingredients.map((ingredient, index) => (
+                <div key={index}>
+                  <CustomInputIngredient
+                    name={`ingredients[${index}].name`}
+                    placeholder="Ingredient name..."
+                  />
+                  <CustomInputIngredient
+                    name={`ingredients[${index}].quantity`}
+                    placeholder="Quantity..."
+                  />
+                  {index > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFieldValue(
+                          "ingredients",
+                          values.ingredients.filter((_, i) => i !== index)
+                        );
+                      }}
+                    >
+                      x
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => {
+                  setFieldValue("ingredients", [
+                    ...values.ingredients,
+                    { name: "", quantity: "" },
+                  ]);
+                }}
+              >
+                Add Ingredient
+              </button>
+            </div>
+
+            <br />
+            <button type="submit">Create Recipe</button>
+          </Form>
+        )}
+      </Formik>
+    </div>
   );
 }

@@ -94,38 +94,34 @@ app.post("/login", (req, res) => {
   db.query(sql, values, (err, data) => {
     if (err) {
       console.error("Error executing SQL query:", err);
-      return res.json("Fail");
+      return res.json("User is not register");
     }
 
     if (data.length > 0) {
       const user = data[0];
 
       // Compare the provided password with the stored hashed password
-      bcrypt.compare(
-        req.body.password[0],
-        user.password,
-        (compareErr, result) => {
-          if (compareErr) {
-            console.error("Error comparing passwords:", compareErr);
-            return res.json("Fail");
-          }
-
-          if (result) {
-            const token = createToken(user.id);
-
-            res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
-
-            console.log("Login successful");
-            return res.json({ status: "Success", data: user, token: token });
-          } else {
-            console.log("Incorrect password");
-            return res.json("Fail");
-          }
+      bcrypt.compare(req.body.password, user.password, (compareErr, result) => {
+        if (compareErr) {
+          console.error("Error comparing passwords:", compareErr);
+          return res.json("Fail");
         }
-      );
+
+        if (result) {
+          const token = createToken(user.id);
+
+          res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
+
+          console.log("Login successful");
+          return res.json({ status: "Success", data: user, token: token });
+        } else {
+          console.log("Incorrect password");
+          return res.status(500).json("Incorrect password");
+        }
+      });
     } else {
-      console.log("User not found");
-      return res.json("Fail");
+      console.log("User is not register");
+      return res.status(500).json("User is not register");
     }
   });
 });

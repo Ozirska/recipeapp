@@ -23,17 +23,18 @@ export default function Home() {
   };
 
   return (
-    <div>
+    <div className="mx-auto min-h-screen p-5 bg-gradient-to-b from-amber-50 via-cyan-100 to-fuchsia-100">
       <div className="flex justify-between items-center	 p-20px">
-        <h1 className="text-blue-600 text-3xl">Logo</h1>
+        <h1 className="text-blue-600 text-3xl m-5">Logo</h1>
         <div className="flex pt-2">
-          {user && <h1>{user.name}</h1>}
+          {user && <h1 className="text-2xl font-medium mr-3">{user.name}</h1>}
           {isAuthenticated ? (
             <button
-              className="block w-24 mr-4 text-center	 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1  rounded"
+              className="text-[20px] font-medium mr-4"
+              // className="block w-24 mr-4 text-center	 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1  rounded"
               onClick={handleLogout}
             >
-              logout
+              / logout
             </button>
           ) : (
             ""
@@ -60,8 +61,37 @@ export default function Home() {
           )}
         </div>
       </div>
-      <br /> {isAuthenticated ? <Link to="/create">create</Link> : ""}
+      <br />{" "}
+      {isAuthenticated ? (
+        <Link
+          to="/create"
+          className="m-auto block w-24 text-center	bg-blue-50 hover:bg-blue-300 py-1  rounded"
+          style={{
+            boxShadow:
+              "rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px",
+          }}
+        >
+          CREATE
+        </Link>
+      ) : (
+        ""
+      )}
       <br />
+      <br />{" "}
+      {isAuthenticated ? (
+        <Link
+          to="/my_recipe"
+          className="block w-24 text-center	 hover:bg-purple-200 py-1  rounded"
+          style={{
+            boxShadow:
+              "rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px",
+          }}
+        >
+          MY RECIPES
+        </Link>
+      ) : (
+        ""
+      )}
       <br />
       <br />
       <Resipe />

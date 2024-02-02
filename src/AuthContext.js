@@ -6,10 +6,12 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
+  const [recipes, setRecipes] = useState([]);
 
   const getUserDataToken = () => {
     const storedToken = localStorage.getItem("authToken");
-    if (storedToken) {
+
+    if (storedToken && storedToken !== "undefined") {
       const userIDFromToken = decodeToken(storedToken);
       axios
         .get(
@@ -39,7 +41,6 @@ export const AuthProvider = ({ children }) => {
 
     localStorage.removeItem("authToken");
 
-    // Clear the user and update authentication status
     setUser(null);
     setIsAuthenticated(false);
   };
@@ -50,7 +51,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, logout }}>
+    <AuthContext.Provider
+      value={{ user, isAuthenticated, login, logout, recipes, setRecipes }}
+    >
       {children}
     </AuthContext.Provider>
   );

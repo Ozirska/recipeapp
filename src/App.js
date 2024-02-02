@@ -4,6 +4,7 @@ import Login from "./Login";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Signup from "./Signup";
 import Home from "./Home";
+import MyRecipe from "./MyRecipe";
 import CreateRecipe from "./CreateResipe";
 import { useAuth } from "./AuthContext";
 
@@ -17,6 +18,7 @@ function App() {
         <Route path="/login" element={<Login />}></Route>
         <Route path="/signup" element={<Signup />}></Route>
         <Route path="/create" element={<CreateRecipe user={user} />} />
+        <Route path="/my_recipe" element={<MyRecipe user={user} />} />
       </Routes>
     </BrowserRouter>
   );

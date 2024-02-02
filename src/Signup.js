@@ -2,28 +2,32 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "./AuthContext";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+
+const validationSchema = Yup.object({
+  name: Yup.string().required("Name is required"),
+  email: Yup.string()
+    .email("Invalid email address")
+    .required("Email is required"),
+  password: Yup.string()
+    .min(6, "Password must be at least 6 characters")
+    .required("Password is required"),
+});
 
 export default function Signup() {
   const { login } = useAuth();
-
-  const [values, setValues] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
   const navigate = useNavigate();
-  const [errors, setErrors] = useState({});
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-
+  const handleSubmit = () => {
     axios
-      .post("http://localhost:8800/signup", values, { withCredentials: true })
+      .post("http://localhost:8800/signup", formik.values, {
+        withCredentials: true,
+      })
       .then((res) => {
         if (res.status === 200) {
           localStorage.setItem("authToken", res.data.token);
           login(res.data);
-          console.log(res.data.token);
           navigate("/");
         } else {
           alert("No register user");
@@ -31,36 +35,77 @@ export default function Signup() {
       })
       .catch((err) => console.error("Error in axios request:", err));
   };
-  const handleInput = (e) => {
-    setValues((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
+    validationSchema,
+    onSubmit: handleSubmit,
+  });
 
   return (
-    <div>
-      <h1>Signup</h1>
-      <form onSubmit={handleSubmit}>
+    <div className="mx-auto min-h-screen p-5 bg-gradient-to-b from-green-50 via-lime-50 to-teal-50">
+      <h1 className="text-center mt-9">Signup</h1>
+      <br />
+      <br />
+      <form
+        onSubmit={formik.handleSubmit}
+        className="flex flex-col mx-auto w-[90%] md:w-[60%] lg:w-[40%] xl:w-[40%]"
+      >
         <input
-          onChange={handleInput}
+          className=" h-[30px] border border-black focus:outline-none rounded-md px-2"
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          value={formik.values.name}
           type="text"
           name="name"
           placeholder="enter name..."
         />
+        {formik.touched.name && formik.errors.name ? (
+          <div className="text-red-500">{formik.errors.name}</div>
+        ) : null}
+        <br />
         <input
-          onChange={handleInput}
-          type="email"
+          className=" h-[30px] border border-black focus:outline-none rounded-md px-2"
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          value={formik.values.email}
+          type="text"
           name="email"
           placeholder="enter email..."
         />
+        {formik.touched.email && formik.errors.email ? (
+          <div className="text-red-500">{formik.errors.email}</div>
+        ) : null}
+        <br />
         <input
-          onChange={handleInput}
-          type="password"
+          className=" h-[30px] border border-black focus:outline-none rounded-md px-2"
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          value={formik.values.password}
+          type="text"
           name="password"
           placeholder="enter password..."
         />
-        <button type="submit">Signup</button>
+        {formik.touched.password && formik.errors.password ? (
+          <div className="text-red-500">{formik.errors.password}</div>
+        ) : null}
+        <br />
+        <button
+          type="submit"
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline-blue active:bg-blue-800"
+        >
+          Signup
+        </button>
         <br /> <br />
         <p>
-          Already registered? <Link to="/login">register</Link>
+          Already registered?
+          <Link to="/login" className="underline text-blue-400">
+            login
+          </Link>
         </p>
       </form>
     </div>

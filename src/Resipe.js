@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useAuth } from "./AuthContext";
 
 const Resipe = () => {
-  const [recipes, setRecipe] = useState([]);
+  const { recipes, setRecipes } = useAuth();
+
+  // const [recipes, setRecipe] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
 
   useEffect(() => {
@@ -13,7 +16,7 @@ const Resipe = () => {
         const response = await axios.get("http://localhost:8800/recipe", {
           withCredentials: true,
         });
-        isMounted && setRecipe(response.data);
+        isMounted && setRecipes(response.data);
       } catch (err) {
         console.error("Error fetching recipes:", err);
       }
@@ -24,7 +27,7 @@ const Resipe = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [setRecipes]);
 
   const openModal = (info) => {
     setSelectedRecipe(info);
