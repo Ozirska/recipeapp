@@ -116,12 +116,12 @@ app.post("/login", (req, res) => {
           return res.json({ status: "Success", data: user, token: token });
         } else {
           console.log("Incorrect password");
-          return res.status(500).json("Incorrect password");
+          return res.status(400).json({field:"password", message: "Invalid password"});
         }
       });
     } else {
       console.log("User is not register");
-      return res.status(500).json("User is not register");
+      return res.status(400).json({field:"email", message: "Email is not registered"});
     }
   });
 });
