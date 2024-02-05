@@ -17,6 +17,8 @@ const validationSchema = Yup.object({
 
 export default function Signup() {
   const { login } = useAuth();
+  const [serverError, setServerError] = useState(null);
+
   const navigate = useNavigate();
 
   const handleSubmit = () => {
@@ -33,7 +35,22 @@ export default function Signup() {
           alert("No register user");
         }
       })
-      .catch((err) => console.error("Error in axios request:", err));
+      .catch((error) => {
+        console.log(error);
+        if (error.response && error.response.data) {
+          const field = error.response.data.field;
+          const message = error.response.data.message;
+
+          if (field) {
+            formik.setErrors({ [field]: message });
+          } else {
+            console.error("Server error:", error);
+            setServerError(
+              "A unexpected error occured, please try again later.."
+            );
+          }
+        }
+      });
   };
 
   const formik = useFormik({
@@ -67,6 +84,7 @@ export default function Signup() {
         {formik.touched.name && formik.errors.name ? (
           <div className="text-red-500">{formik.errors.name}</div>
         ) : null}
+        {serverError ? <div className="text-red-500">{serverError}</div> : null}
         <br />
         <input
           className=" h-[30px] border border-black focus:outline-none rounded-md px-2"

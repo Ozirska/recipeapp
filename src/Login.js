@@ -29,17 +29,20 @@ export default function Login() {
       login();
       navigate("/");
     } catch (error) {
+      console.log(error);
       if (error.response && error.response.data) {
         const field = error.response.data.field;
         const message = error.response.data.message;
 
         if (field) {
-          formik.setErrors({[field]:message})
+          formik.setErrors({ [field]: message });
         } else {
           console.error("Server error:", error);
-          setServerError("A unexpected error occured, please try again later..")
+          setServerError(
+            "A unexpected error occured, please try again later.."
+          );
         }
-      } 
+      }
     }
   };
 
@@ -93,7 +96,7 @@ export default function Login() {
         {formik.touched.password && formik.errors.password ? (
           <div className="text-red-500">{formik.errors.password}</div>
         ) : null}
-          {serverError ? (<div className="text-red-500">{serverError}</div>) : null}
+        {serverError ? <div className="text-red-500">{serverError}</div> : null}
         <br />
         <button
           type="submit"

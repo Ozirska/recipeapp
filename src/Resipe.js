@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "./AuthContext";
+import getResipeFunc from "./getResipeFunc";
 
 const Resipe = () => {
   const { recipes, setRecipes } = useAuth();
@@ -9,24 +10,7 @@ const Resipe = () => {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
 
   useEffect(() => {
-    let isMounted = true;
-
-    const getRecipe = async () => {
-      try {
-        const response = await axios.get("http://localhost:8800/recipe", {
-          withCredentials: true,
-        });
-        isMounted && setRecipes(response.data);
-      } catch (err) {
-        console.error("Error fetching recipes:", err);
-      }
-    };
-
-    getRecipe();
-
-    return () => {
-      isMounted = false;
-    };
+    getResipeFunc(setRecipes);
   }, [setRecipes]);
 
   const openModal = (info) => {
@@ -44,11 +28,13 @@ const Resipe = () => {
         <div className=" p-5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
           {recipes.map((recipe, i) => (
             <div key={i}>
-              <img
-                className="object-cover w-full h-[85%]"
-                src={recipe.photo_url}
-                alt={`Recipe ${i + 1}`}
-              />
+              <div className="w-[100px h-[180px]">
+                <img
+                  className="object-cover w-full h-full"
+                  src={recipe.photo_url}
+                  alt={`Recipe ${i + 1}`}
+                />
+              </div>
               <h1 className="text-center" onClick={() => openModal(recipe)}>
                 {recipe.title}
               </h1>
@@ -60,16 +46,21 @@ const Resipe = () => {
       )}
 
       {selectedRecipe && (
-        <div className="modal">
-          <div className="modal-content">
-            <span className="close" onClick={closeModal}>
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="relative z-50 bg-white p-8 max-w-md mx-auto rounded-md shadow-lg">
+            <span
+              onClick={closeModal}
+              className="absolute top-0 right-0 p-4 cursor-pointer text-gray-600"
+            >
               &times;
             </span>
-            <img
-              className="w-px-48"
-              src={selectedRecipe.photo_url}
-              alt="Recipe"
-            />
+            <div className="w-[300px h-[300px]">
+              <img
+                className="object-cover w-full h-full"
+                src={selectedRecipe.photo_url}
+                alt="Recipe"
+              />
+            </div>
             <table>
               <thead>
                 <tr>

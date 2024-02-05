@@ -56,33 +56,54 @@ app.post("/signup", async (req, res) => {
   const { name, email, password } = req.body;
 
   try {
-    // Generate a salt
-    const saltRounds = 10;
-    const salt = await bcrypt.genSalt(saltRounds);
+    const emailCheckSql = "SELECT COUNT(*) as count FROM users WHERE email = ?";
+    const emailCheckValues = [email];
 
-    // Hash the password with the generated salt
-    const hashedPassword = await bcrypt.hash(password, salt);
+    db.query(
+      emailCheckSql,
+      emailCheckValues,
+      async (emailCheckErr, emailCheckResult) => {
+        if (emailCheckErr) {
+          console.error("Error checking existing email:", emailCheckErr);
+          return res.status(500).json("Internal Server Error");
+        }
 
-    const sql =
-      "INSERT INTO users(`name`, `email`, `password`) VALUES (?, ?, ?)";
-    const values = [name, email, hashedPassword];
+        const emailCount = emailCheckResult[0].count;
 
-    db.query(sql, values, (err, data) => {
-      if (err) {
-        console.error("Error executing SQL query:", err);
-        return res.json(err);
+        if (emailCount > 0) {
+          return res
+            .status(400)
+            .json({ field: "email", message: "Email is already registered" });
+        }
+
+        // Generate a salt
+        const saltRounds = 10;
+        const salt = await bcrypt.genSalt(saltRounds);
+
+        // Hash the password with the generated salt
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const insertUserSql =
+          "INSERT INTO users(`name`, `email`, `password`) VALUES (?, ?, ?)";
+        const insertUserValues = [name, email, hashedPassword];
+
+        db.query(insertUserSql, insertUserValues, (insertErr, insertData) => {
+          if (insertErr) {
+            console.error("Error inserting new user:", insertErr);
+            return res.status(500).json("Internal Server Error");
+          }
+
+          console.log("Data successfully inserted:", insertData);
+          const token = createToken(insertData.insertId);
+
+          res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
+
+          return res.json({ status: "Success", token: token });
+        });
       }
-
-      console.log("Data successfully inserted:", data);
-      const token = createToken(data.insertId);
-      console.log("DATAID", data.insertId);
-
-      res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
-
-      return res.json({ status: "Success", token: token });
-    });
+    );
   } catch (error) {
-    console.error("Error hashing password:", error);
+    console.error("Error handling signup request:", error);
     res.status(500).json("Internal Server Error");
   }
 });
@@ -116,12 +137,16 @@ app.post("/login", (req, res) => {
           return res.json({ status: "Success", data: user, token: token });
         } else {
           console.log("Incorrect password");
-          return res.status(400).json({field:"password", message: "Invalid password"});
+          return res
+            .status(400)
+            .json({ field: "password", message: "Invalid password" });
         }
       });
     } else {
       console.log("User is not register");
-      return res.status(400).json({field:"email", message: "Email is not registered"});
+      return res
+        .status(400)
+        .json({ field: "email", message: "Email is not registered" });
     }
   });
 });
@@ -169,6 +194,25 @@ app.get("/recipe", (req, res) => {
   db.query(q, (err, data) => {
     if (err) return res.json(err);
     res.json(data);
+  });
+});
+
+app.post("/delete", (req, res) => {
+  const { id } = req.body;
+  console.log(id);
+  const q = "DELETE FROM recipes WHERE id = ?";
+
+  db.query(q, [id], (err, results) => {
+    if (err) {
+      console.error("Error deleting recipe:", err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+
+    if (results.affectedRows > 0) {
+      return res.status(200).json({ message: "Recipe deleted successfully" });
+    } else {
+      return res.status(404).json({ error: "Recipe not found" });
+    }
   });
 });
 
