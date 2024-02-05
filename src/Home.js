@@ -2,7 +2,6 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "./AuthContext";
-// import Users from "./Users";
 import Resipe from "./Resipe";
 
 export default function Home() {
@@ -31,7 +30,6 @@ export default function Home() {
           {isAuthenticated ? (
             <button
               className="text-[20px] font-medium mr-4"
-              // className="block w-24 mr-4 text-center	 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1  rounded"
               onClick={handleLogout}
             >
               / logout

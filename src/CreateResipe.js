@@ -3,7 +3,7 @@ import { Formik, Form, useField, Field } from "formik";
 import * as yup from "yup";
 import { useAuth } from "./AuthContext";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Client, Storage } from "appwrite";
 import { v4 as uuidv4 } from "uuid";
 
@@ -32,15 +32,17 @@ const CustomInput = ({ as, ...props }) => {
         <textarea
           {...field}
           {...props}
-          className={`w-full h-12 px-3 rounded-md border ${
-            meta.touched && meta.error ? "border-red-500" : "border-gray-300"
-          } focus:outline-none focus:border-blue-500`}
+          className={`w-full focus:outline-none  p-3 text-base rounded-md border border-black ${
+            meta.touched && meta.error ? "border-red-500" : "border-gray-400"
+          } `}
         />
       ) : (
         <input
           {...field}
           {...props}
-          className={meta.touched && meta.error ? "input-error" : ""}
+          className={` h-8 border  focus:outline-none rounded-md px-2  ${
+            meta.touched && meta.error ? "border-red-500" : "border-gray-400"
+          }`}
         />
       )}
       {meta.touched && meta.error && <p className="error">{meta.error}</p>}
@@ -53,11 +55,17 @@ const CustomInputIngredient = ({ name, placeholder }) => {
 
   return (
     <>
-      <input
-        {...field}
-        className={meta.touched && meta.error ? "input-error" : ""}
-      />
-      {meta.touched && meta.error && <p className="error">{meta.error}</p>}
+      <div className="mb-2">
+        <input
+          {...field}
+          className={`h-[30px] border focus:outline-none rounded-md px-2 mr-2  ${
+            meta.touched && meta.error ? "border-red-500" : "border-gray-400"
+          }`}
+        />
+        {meta.touched && meta.error && (
+          <p className="text-red-500 text-[12px] ">{meta.error}</p>
+        )}
+      </div>
     </>
   );
 };
@@ -121,6 +129,11 @@ export default function CreateRecipeForm() {
       <h1 className="text-center mt-9">+ Create new recipe +</h1>
 
       <br />
+      <Link to="/" className="underline text-gray-500">
+        <span>&#60;</span> back
+      </Link>
+      <br />
+
       <br />
       <Formik
         initialValues={initialValues}
@@ -153,10 +166,10 @@ export default function CreateRecipeForm() {
             <br />
 
             <div>
-              <label>Ingredients:</label>
+              <h3>Ingredients:</h3>
               <br />
               {values.ingredients.map((ingredient, index) => (
-                <div key={index}>
+                <div className="flex" key={index}>
                   <CustomInputIngredient
                     name={`ingredients[${index}].name`}
                     placeholder="Ingredient name..."
@@ -181,6 +194,7 @@ export default function CreateRecipeForm() {
                 </div>
               ))}
               <button
+                className="underline text-gray-500"
                 type="button"
                 onClick={() => {
                   setFieldValue("ingredients", [
@@ -189,12 +203,17 @@ export default function CreateRecipeForm() {
                   ]);
                 }}
               >
-                Add Ingredient
+                ingredient +
               </button>
             </div>
 
             <br />
-            <button type="submit">Create Recipe</button>
+            <button
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline-blue active:bg-blue-800"
+              type="submit"
+            >
+              Create Recipe
+            </button>
           </Form>
         )}
       </Formik>
