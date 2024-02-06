@@ -7,7 +7,7 @@ const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 const corsOptions = {
-  origin: "http://localhost:3000",
+  origin: "https://recipes-app-sable.vercel.app",
   credentials: true,
 };
 
