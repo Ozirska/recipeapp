@@ -10,12 +10,13 @@ export default function MyRecipe() {
   const [userRecipes, setUserRecipes] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
 
-  console.log(user);
-
   useEffect(() => {
-    const userRecipes = recipes.filter((el) => user.id === el.userID);
+    getRecipesFunc(setRecipes);
+
+    const userRecipes = recipes.filter((el) => user?.id === el.userID);
     setUserRecipes(userRecipes);
-  }, [recipes, user?.id]);
+  }, [user?.id]);
+
   const openModal = (info) => {
     setSelectedRecipe(info);
   };
