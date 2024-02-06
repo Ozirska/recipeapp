@@ -7,7 +7,7 @@ const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 const corsOptions = {
-  origin: "https://recipes-4bzor32cd-marinas-projects-dc2f1bb9.vercel.app",
+  origin: "https://recipes-app-sable.vercel.app",
   credentials: true,
 };
 
