@@ -92,7 +92,18 @@ export default function Home() {
       )}
       <br />
       <br />
-      <Resipe />
+      {isAuthenticated ? (
+        <Resipe />
+      ) : (
+        <div>
+          <p className="text-center text-[35px] font-[400]">Join us!</p>
+          <br />
+          <p className="text-center">
+            Here you can store your favorites recipes and watch other users
+            recipes!
+          </p>
+        </div>
+      )}
     </div>
   );
 }
