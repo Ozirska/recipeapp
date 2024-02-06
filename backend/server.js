@@ -16,9 +16,8 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
-console.log("PASSWORDI", `${process.env.PASSWORD_DB}`);
 const db = mysql.createConnection({
-  host: "localhost",
+  host: process.env.HOST,
   user: "root",
   password: process.env.PASSWORD_DB,
   database: "recipe",
