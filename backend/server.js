@@ -7,7 +7,7 @@ const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 const corsOptions = {
-  origin: "recipes-two-blue.vercel.app/",
+  origin: "recipes-b89ln1fjb-marinas-projects-dc2f1bb9.vercel.app/",
   credentials: true,
 };
 
@@ -21,7 +21,6 @@ app.use(cookieParser());
 /////////
 
 const { Pool } = require("pg");
-require("dotenv").config();
 
 const pool = new Pool({
   connectionString:
@@ -103,7 +102,7 @@ app.post("/signup", async (req, res) => {
           "INSERT INTO users(`name`, `email`, `password`) VALUES (?, ?, ?)";
         const insertUserValues = [name, email, hashedPassword];
 
-        db.query(insertUserSql, insertUserValues, (insertErr, insertData) => {
+        pool.query(insertUserSql, insertUserValues, (insertErr, insertData) => {
           if (insertErr) {
             console.error("Error inserting new user:", insertErr);
             return res.status(500).json("Internal Server Error");
