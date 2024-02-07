@@ -7,7 +7,7 @@ const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 const corsOptions = {
-  origin: "https://recipeapp-server.vercel.app/",
+  origin: "https://recipe-gilt-two.vercel.app/",
   credentials: true,
 };
 
