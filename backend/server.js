@@ -66,6 +66,9 @@ const createToken = (id) => {
 app.get("/", (req, res) => {
   res.json("data");
 });
+app.get("/signup", (req, res) => {
+  res.json("SIGNUP");
+});
 
 app.post("/signup", async (req, res) => {
   const { name, email, password } = req.body;
