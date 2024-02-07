@@ -11,7 +11,11 @@ export default function Home() {
 
   const handleLogout = () => {
     axios
-      .post("http://localhost:8800/logout", {}, { withCredentials: true })
+      .post(
+        "http://recipes-app-sable.vercel.app/logout",
+        {},
+        { withCredentials: true }
+      )
       .then((res) => {
         logout();
         navigate("/");

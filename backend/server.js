@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
+console.log("HOST", process.env.HOST);
 const corsOptions = {
   origin: "https://recipes-app-sable.vercel.app",
   credentials: true,

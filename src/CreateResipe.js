@@ -113,7 +113,9 @@ export default function CreateRecipeForm() {
     console.log(res);
 
     axios
-      .post("http://localhost:8800/create", res, { withCredentials: true })
+      .post("http://recipes-app-sable.vercel.app/create", res, {
+        withCredentials: true,
+      })
       .then((res) => {
         if (res.status === 200) {
           navigate("/");

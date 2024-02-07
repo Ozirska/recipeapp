@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
       const userIDFromToken = decodeToken(storedToken);
       axios
         .get(
-          `http://localhost:8800/auth?id=${userIDFromToken.id}`,
+          `http://recipes-app-sable.vercel.app/auth?id=${userIDFromToken.id}`,
 
           {
             withCredentials: true,
