@@ -22,7 +22,7 @@ export default function Login() {
   const validateWithServer = async (values) => {
     try {
       const response = await axios.post(
-        "http://recipes-app-sable.vercel.app/login",
+        "https://recipeapp-server.vercel.app/login",
         values,
         {
           withCredentials: true,

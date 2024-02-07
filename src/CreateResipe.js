@@ -113,7 +113,7 @@ export default function CreateRecipeForm() {
     console.log(res);
 
     axios
-      .post("http://recipes-app-sable.vercel.app/create", res, {
+      .post("https://recipeapp-server.vercel.app/create", res, {
         withCredentials: true,
       })
       .then((res) => {

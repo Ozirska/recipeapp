@@ -29,7 +29,7 @@ export default function MyRecipe() {
     console.log(info);
     try {
       const response = await axios.post(
-        "http://recipes-app-sable.vercel.app/delete",
+        "https://recipeapp-server.vercel.app/delete",
         info,
         {
           withCredentials: true,
