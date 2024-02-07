@@ -6,9 +6,8 @@ const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
-console.log("HOST", process.env.HOST);
 const corsOptions = {
-  origin: "https://recipes-app-sable.vercel.app",
+  origin: "recipes-two-blue.vercel.app/",
   credentials: true,
 };
 
@@ -17,19 +16,38 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
-const db = mysql.createConnection({
-  host: process.env.HOST,
-  user: "root",
-  password: process.env.PASSWORD_DB,
-  database: "recipe",
+///////////////
+//////DB///////
+/////////
+
+const { Pool } = require("pg");
+require("dotenv").config();
+
+const pool = new Pool({
+  connectionString:
+    "postgres://default:N45laDgMCOhz@ep-royal-paper-a2q63073-pooler.eu-central-1.postgres.vercel-storage.com:5432/verceldb?sslmode=require",
 });
-db.connect((err) => {
+pool.connect((err) => {
   if (err) {
-    console.error("Error connecting to MySQL:", err);
+    console.error("Error connecting to DB:", err);
     return;
   }
-  console.log("Connected to MySQL!");
+  console.log("Connected to DB!");
 });
+
+// const db = mysql.createConnection({
+//   host: process.env.HOST,
+//   user: "root",
+//   password: process.env.PASSWORD_DB,
+//   database: "recipe",
+// });
+// db.connect((err) => {
+//   if (err) {
+//     console.error("Error connecting to MySQL:", err);
+//     return;
+//   }
+//   console.log("Connected to MySQL!");
+// });
 
 //////////
 /////////TOKEN//////
@@ -47,11 +65,7 @@ const createToken = (id) => {
 /////////////////////
 
 app.get("/", (req, res) => {
-  const q = "SELECT * FROM users";
-  db.query(q, (err, data) => {
-    if (err) return res.json(err);
-    res.json(data);
-  });
+  res.json("data");
 });
 
 app.post("/signup", async (req, res) => {
@@ -61,7 +75,7 @@ app.post("/signup", async (req, res) => {
     const emailCheckSql = "SELECT COUNT(*) as count FROM users WHERE email = ?";
     const emailCheckValues = [email];
 
-    db.query(
+    pool.query(
       emailCheckSql,
       emailCheckValues,
       async (emailCheckErr, emailCheckResult) => {
@@ -114,7 +128,7 @@ app.post("/login", (req, res) => {
   const sql = "SELECT * FROM users WHERE `email` = ?";
   const values = [req.body.email];
 
-  db.query(sql, values, (err, data) => {
+  pool.query(sql, values, (err, data) => {
     if (err) {
       console.error("Error executing SQL query:", err);
       return res.json("User is not register");
@@ -161,7 +175,7 @@ app.post("/create", async (req, res) => {
       "INSERT INTO recipes(`title`, `description`, `ingredients`, `photo_url`, `userID`) VALUES (?, ?, ?, ?, ?)";
     const values = [title, description, ingredients, photo_url, userID];
 
-    db.query(sql, values, (err, data) => {
+    pool.query(sql, values, (err, data) => {
       if (err) {
         console.error("Error executing SQL query:", err);
         return res.json(err);
@@ -176,7 +190,7 @@ app.post("/create", async (req, res) => {
     res.status(500).json("Internal Server Error");
   }
 });
-////////////////////////
+// ////////////////////////
 
 app.post("/logout", (req, res) => {
   res.clearCookie("jwt");
@@ -185,7 +199,7 @@ app.post("/logout", (req, res) => {
 
 app.get("/users", (req, res) => {
   const q = "SELECT * FROM users";
-  db.query(q, (err, data) => {
+  pool.query(q, (err, data) => {
     if (err) return res.json(err);
     res.json(data);
   });
@@ -193,7 +207,7 @@ app.get("/users", (req, res) => {
 
 app.get("/recipe", (req, res) => {
   const q = "SELECT * FROM recipes";
-  db.query(q, (err, data) => {
+  pool.query(q, (err, data) => {
     if (err) return res.json(err);
     res.json(data);
   });
@@ -204,7 +218,7 @@ app.post("/delete", (req, res) => {
   console.log(id);
   const q = "DELETE FROM recipes WHERE id = ?";
 
-  db.query(q, [id], (err, results) => {
+  pool.query(q, [id], (err, results) => {
     if (err) {
       console.error("Error deleting recipe:", err);
       return res.status(500).json({ error: "Internal Server Error" });
@@ -222,7 +236,7 @@ app.get("/auth", (req, res) => {
   const q = "SELECT * FROM users WHERE `id` = ?";
   const values = [req.query.id];
 
-  db.query(q, values, (err, data) => {
+  pool.query(q, values, (err, data) => {
     if (err) return res.json(err);
     res.json(data);
   });
