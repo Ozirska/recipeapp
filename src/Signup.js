@@ -23,7 +23,7 @@ export default function Signup() {
 
   const handleSubmit = () => {
     axios
-      .post("http://recipes-app-sable.vercel.app/signup", formik.values, {
+      .post("https://recipeapp-server.vercel.app/signup", formik.values, {
         withCredentials: true,
       })
       .then((res) => {

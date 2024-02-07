@@ -6,7 +6,7 @@ import { useAuth } from "./AuthContext";
 const getRecipesFunc = async (setRecipes) => {
   try {
     const response = await axios.get(
-      "http://recipes-app-sable.vercel.app/recipe",
+      "https://recipeapp-server.vercel.app/recipe",
       {
         withCredentials: true,
       }
