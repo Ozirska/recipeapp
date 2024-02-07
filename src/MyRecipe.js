@@ -28,9 +28,13 @@ export default function MyRecipe() {
   const deleteRecipe = async (info) => {
     console.log(info);
     try {
-      const response = await axios.post("http://localhost:8800/delete", info, {
-        withCredentials: true,
-      });
+      const response = await axios.post(
+        "http://recipes-app-sable.vercel.app/delete",
+        info,
+        {
+          withCredentials: true,
+        }
+      );
 
       if (response.status === 200) {
         getRecipesFunc(setRecipes);

@@ -21,9 +21,13 @@ export default function Login() {
 
   const validateWithServer = async (values) => {
     try {
-      const response = await axios.post("http://localhost:8800/login", values, {
-        withCredentials: true,
-      });
+      const response = await axios.post(
+        "http://recipes-app-sable.vercel.app/login",
+        values,
+        {
+          withCredentials: true,
+        }
+      );
 
       localStorage.setItem("authToken", response.data.token);
       login();
