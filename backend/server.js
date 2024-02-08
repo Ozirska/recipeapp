@@ -24,7 +24,7 @@ const { Pool } = require("pg");
 
 const pool = new Pool({
   connectionString:
-    "postgres://default:N45laDgMCOhz@ep-royal-paper-a2q63073-pooler.eu-central-1.postgres.vercel-storage.com:5432/verceldb?sslmode=require",
+    "postgres://default:b9cCFfsNR0Xa@ep-bold-dream-a2o9m2z7.eu-central-1.aws.neon.tech:5432/verceldb?sslmode=require",
 });
 pool.connect((err) => {
   if (err) {
