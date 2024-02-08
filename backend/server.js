@@ -26,12 +26,30 @@ const pool = new Pool({
   connectionString:
     "postgres://default:b9cCFfsNR0Xa@ep-bold-dream-a2o9m2z7.eu-central-1.aws.neon.tech:5432/verceldb?sslmode=require",
 });
-pool.connect((err) => {
+pool.connect((err, client, done) => {
   if (err) {
     console.error("Error connecting to DB:", err);
     return;
   }
   console.log("Connected to DB!");
+
+  const createUserTableQuery = `
+    CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      email VARCHAR(255) UNIQUE NOT NULL,
+      password VARCHAR(255) NOT NULL
+    );
+  `;
+
+  client.query(createUserTableQuery, (error, result) => {
+    done(); // Release the client back to the pool
+    if (error) {
+      console.error("Error creating users table:", error);
+    } else {
+      console.log("Users table created successfully!");
+    }
+  });
 });
 
 // const db = mysql.createConnection({
