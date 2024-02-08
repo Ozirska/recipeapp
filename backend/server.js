@@ -7,7 +7,7 @@ const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 const corsOptions = {
-  origin: "https://recipe-gilt-two.vercel.app",
+  origin: "*",
   credentials: true,
 };
 
@@ -33,38 +33,24 @@ pool.connect((err, client, done) => {
   }
   console.log("Connected to DB!");
 
-  const createUserTableQuery = `
-    CREATE TABLE IF NOT EXISTS users (
-      id SERIAL PRIMARY KEY,
-      name VARCHAR(255) NOT NULL,
-      email VARCHAR(255) UNIQUE NOT NULL,
-      password VARCHAR(255) NOT NULL
-    );
-  `;
+  // const createUserTableQuery = `
+  //   CREATE TABLE IF NOT EXISTS users (
+  //     id SERIAL PRIMARY KEY,
+  //     name VARCHAR(255) NOT NULL,
+  //     email VARCHAR(255) UNIQUE NOT NULL,
+  //     password VARCHAR(255) NOT NULL
+  //   );
+  // `;
 
-  client.query(createUserTableQuery, (error, result) => {
-    done(); // Release the client back to the pool
-    if (error) {
-      console.error("Error creating users table:", error);
-    } else {
-      console.log("Users table created successfully!");
-    }
-  });
+  // client.query(createUserTableQuery, (error, result) => {
+  //   done(); // Release the client back to the pool
+  //   if (error) {
+  //     console.error("Error creating users table:", error);
+  //   } else {
+  //     console.log("Users table created successfully!");
+  //   }
+  // });
 });
-
-// const db = mysql.createConnection({
-//   host: process.env.HOST,
-//   user: "root",
-//   password: process.env.PASSWORD_DB,
-//   database: "recipe",
-// });
-// db.connect((err) => {
-//   if (err) {
-//     console.error("Error connecting to MySQL:", err);
-//     return;
-//   }
-//   console.log("Connected to MySQL!");
-// });
 
 //////////
 /////////TOKEN//////
@@ -265,3 +251,17 @@ app.get("/auth", (req, res) => {
 app.listen(8800, () => {
   console.log("Listen on port 8800!");
 });
+
+// const db = mysql.createConnection({
+//   host: process.env.HOST,
+//   user: "root",
+//   password: process.env.PASSWORD_DB,
+//   database: "recipe",
+// });
+// db.connect((err) => {
+//   if (err) {
+//     console.error("Error connecting to MySQL:", err);
+//     return;
+//   }
+//   console.log("Connected to MySQL!");
+// });
