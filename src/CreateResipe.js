@@ -72,6 +72,7 @@ const CustomInputIngredient = ({ name, placeholder }) => {
 
 export default function CreateRecipeForm() {
   const { user } = useAuth();
+  console.log(user);
 
   const [recipeimag, setRecipeimg] = useState("");
 
@@ -113,11 +114,9 @@ export default function CreateRecipeForm() {
     console.log(res);
 
     axios
-      .post("https://recipeapp-server.vercel.app/create", res, {
-        withCredentials: true,
-      })
+      .post(`${process.env.REACT_APP_SERVER}/create`, res)
       .then((res) => {
-        if (res.status === 200) {
+        if (res.status === 204) {
           navigate("/");
         } else {
           alert("No register user");

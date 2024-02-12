@@ -15,22 +15,19 @@ const validationSchema = Yup.object({
 });
 
 export default function Login() {
-  const { login } = useAuth();
+  const { setUserData } = useAuth();
   const [serverError, setServerError] = useState(null);
   const navigate = useNavigate();
 
   const validateWithServer = async (values) => {
     try {
       const response = await axios.post(
-        "https://recipeapp-server.vercel.app/login",
-        values,
-        {
-          withCredentials: true,
-        }
+        `${process.env.REACT_APP_SERVER}/login`,
+        values
       );
 
       localStorage.setItem("authToken", response.data.token);
-      login();
+      setUserData(response.data.user);
       navigate("/");
     } catch (error) {
       console.log(error);

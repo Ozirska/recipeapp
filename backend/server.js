@@ -6,13 +6,8 @@ const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
-const corsOptions = {
-  origin: "*",
-  credentials: true,
-};
-
 const app = express();
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 
@@ -26,31 +21,18 @@ const pool = new Pool({
   connectionString:
     "postgres://default:b9cCFfsNR0Xa@ep-bold-dream-a2o9m2z7.eu-central-1.aws.neon.tech:5432/verceldb?sslmode=require",
 });
-pool.connect((err, client, done) => {
-  if (err) {
-    console.error("Error connecting to DB:", err);
-    return;
+
+const getClient = async () => {
+  try {
+    const client = await pool.connect();
+    console.info("Connected to PostgreSQL");
+
+    return client;
+  } catch (err) {
+    console.error("Fialed to connect: " + err.message);
+    throw err;
   }
-  console.log("Connected to DB!");
-
-  // const createUserTableQuery = `
-  //   CREATE TABLE IF NOT EXISTS users (
-  //     id SERIAL PRIMARY KEY,
-  //     name VARCHAR(255) NOT NULL,
-  //     email VARCHAR(255) UNIQUE NOT NULL,
-  //     password VARCHAR(255) NOT NULL
-  //   );
-  // `;
-
-  // client.query(createUserTableQuery, (error, result) => {
-  //   done(); // Release the client back to the pool
-  //   if (error) {
-  //     console.error("Error creating users table:", error);
-  //   } else {
-  //     console.log("Users table created successfully!");
-  //   }
-  // });
-});
+};
 
 //////////
 /////////TOKEN//////
@@ -75,73 +57,70 @@ app.get("/signup", (req, res) => {
 });
 
 app.post("/signup", async (req, res) => {
+  const client = await getClient();
   const { name, email, password } = req.body;
 
   try {
-    const emailCheckSql = "SELECT COUNT(*) as count FROM users WHERE email = ?";
+    const emailCheckSql =
+      "SELECT COUNT(*) as count FROM users WHERE email = $1::text";
     const emailCheckValues = [email];
+    const emailCheckRes = await client.query(emailCheckSql, emailCheckValues);
+    const emailsCount = emailCheckRes.rows.count;
 
-    pool.query(
-      emailCheckSql,
-      emailCheckValues,
-      async (emailCheckErr, emailCheckResult) => {
-        if (emailCheckErr) {
-          console.error("Error checking existing email:", emailCheckErr);
-          return res.status(500).json("Internal Server Error");
-        }
+    if (emailsCount > 0) {
+      return res
+        .status(400)
+        .json({ field: "email", message: "Email is already registered" });
+    }
 
-        const emailCount = emailCheckResult[0].count;
+    // Generate a salt
+    const saltRounds = 10;
+    const salt = await bcrypt.genSalt(saltRounds);
 
-        if (emailCount > 0) {
-          return res
-            .status(400)
-            .json({ field: "email", message: "Email is already registered" });
-        }
+    // Hash the password with the generated salt
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Generate a salt
-        const saltRounds = 10;
-        const salt = await bcrypt.genSalt(saltRounds);
+    const insertUserSql =
+      "INSERT INTO users(name, email, password) VALUES ($1, $2, $3) RETURNING *";
+    const insertUserValues = [name, email, hashedPassword];
 
-        // Hash the password with the generated salt
-        const hashedPassword = await bcrypt.hash(password, salt);
+    try {
+      const insertRes = await client.query(insertUserSql, insertUserValues);
+      const data = insertRes.rows[0];
 
-        const insertUserSql =
-          "INSERT INTO users(`name`, `email`, `password`) VALUES (?, ?, ?)";
-        const insertUserValues = [name, email, hashedPassword];
+      console.log("Data successfully inserted:", data);
+      const token = createToken(data.id);
 
-        pool.query(insertUserSql, insertUserValues, (insertErr, insertData) => {
-          if (insertErr) {
-            console.error("Error inserting new user:", insertErr);
-            return res.status(500).json("Internal Server Error");
-          }
-
-          console.log("Data successfully inserted:", insertData);
-          const token = createToken(insertData.insertId);
-
-          res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
-
-          return res.json({ status: "Success", token: token });
-        });
-      }
-    );
+      return res.status(200).json({
+        user: {
+          id: data.id,
+          name: data.name,
+          email: data.email,
+        },
+        token: token,
+      });
+    } catch (err) {
+      console.error("Error inserting new user:", err);
+      return res.status(400).json({ message: "Internal server error" });
+    } finally {
+      client.end();
+    }
   } catch (error) {
     console.error("Error handling signup request:", error);
-    res.status(500).json("Internal Server Error");
+    res.status(400).json({ message: "Internal Server Error" });
   }
 });
 
-app.post("/login", (req, res) => {
-  const sql = "SELECT * FROM users WHERE `email` = ?";
+app.post("/login", async (req, res) => {
+  const client = await getClient();
+
+  const sql = "SELECT * FROM users WHERE email = $1::text";
   const values = [req.body.email];
 
-  pool.query(sql, values, (err, data) => {
-    if (err) {
-      console.error("Error executing SQL query:", err);
-      return res.json("User is not register");
-    }
-
-    if (data.length > 0) {
-      const user = data[0];
+  try {
+    const selectRes = await client.query(sql, values);
+    if (selectRes.rows.length > 0) {
+      const user = selectRes.rows[0];
 
       // Compare the provided password with the stored hashed password
       bcrypt.compare(req.body.password, user.password, (compareErr, result) => {
@@ -153,10 +132,8 @@ app.post("/login", (req, res) => {
         if (result) {
           const token = createToken(user.id);
 
-          res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
-
           console.log("Login successful");
-          return res.json({ status: "Success", data: user, token: token });
+          return res.status(200).json({ user: user, token: token });
         } else {
           console.log("Incorrect password");
           return res
@@ -170,38 +147,36 @@ app.post("/login", (req, res) => {
         .status(400)
         .json({ field: "email", message: "Email is not registered" });
     }
-  });
+  } catch (err) {
+    console.log("Login error");
+    res.status(400).json({ message: err });
+  } finally {
+    client.end();
+  }
 });
 
 app.post("/create", async (req, res) => {
+  const client = await getClient();
+
   const { title, description, ingredients, photo_url, userID } = req.body;
 
   try {
-    const sql =
-      "INSERT INTO recipes(`title`, `description`, `ingredients`, `photo_url`, `userID`) VALUES (?, ?, ?, ?, ?)";
+    const sql = `INSERT INTO recipes(title, description, ingredients, photo_url, "userID") VALUES ($1::text, $2::text, $3::text, $4::text, $5::int)`;
     const values = [title, description, ingredients, photo_url, userID];
 
-    pool.query(sql, values, (err, data) => {
-      if (err) {
-        console.error("Error executing SQL query:", err);
-        return res.json(err);
-      }
+    const insertRes = await client.query(sql, values);
 
-      console.log("Recipe successfully inserted:", data);
+    console.log("Recipe successfully inserted:", insertRes.rows[0]);
 
-      return res.json({ status: "Success" });
-    });
+    return res.status(204).json();
   } catch (error) {
     console.error("Error hashing password:", error);
     res.status(500).json("Internal Server Error");
+  } finally {
+    client.end();
   }
 });
 // ////////////////////////
-
-app.post("/logout", (req, res) => {
-  res.clearCookie("jwt");
-  res.json({ message: "Logout successful" });
-});
 
 app.get("/users", (req, res) => {
   const q = "SELECT * FROM users";
@@ -211,41 +186,52 @@ app.get("/users", (req, res) => {
   });
 });
 
-app.get("/recipe", (req, res) => {
+app.get("/recipe", async (req, res) => {
+  const client = await getClient();
+
   const q = "SELECT * FROM recipes";
-  pool.query(q, (err, data) => {
-    if (err) return res.json(err);
-    res.json(data);
-  });
+  try {
+    const recipes = await client.query(q);
+
+    res.status(200).json(recipes.rows);
+  } catch (err) {
+    console.log("not created");
+    res.status(400).json({ message: err });
+  }
 });
 
-app.post("/delete", (req, res) => {
-  const { id } = req.body;
-  console.log(id);
-  const q = "DELETE FROM recipes WHERE id = ?";
+app.post("/delete", async (req, res) => {
+  const client = await getClient();
+  console.log("USERDATAID", req.body.id);
 
-  pool.query(q, [id], (err, results) => {
-    if (err) {
-      console.error("Error deleting recipe:", err);
-      return res.status(500).json({ error: "Internal Server Error" });
-    }
+  const q = "DELETE FROM recipes WHERE id = $1::int";
+  const values = [req.body.id];
 
-    if (results.affectedRows > 0) {
-      return res.status(200).json({ message: "Recipe deleted successfully" });
-    } else {
-      return res.status(404).json({ error: "Recipe not found" });
-    }
-  });
+  try {
+    const deleteRecipe = await client.query(q, values);
+    return res.status(200).json({ message: "Recipe deleted successfully" });
+  } catch (err) {
+    console.log("can't get recipe");
+
+    return res.status(404).json({ error: "Recipe not found" });
+  }
 });
 
-app.get("/auth", (req, res) => {
-  const q = "SELECT * FROM users WHERE `id` = ?";
+app.get("/auth", async (req, res) => {
+  const client = await getClient();
+  const q = "SELECT * FROM users WHERE id = $1::int";
   const values = [req.query.id];
 
-  pool.query(q, values, (err, data) => {
-    if (err) return res.json(err);
-    res.json(data);
-  });
+  try {
+    const selectQuery = await client.query(q, values);
+    const data = selectQuery.rows[0];
+    res.json({ id: data.id, name: data.name, email: data.email });
+  } catch (err) {
+    console.error(err);
+    return res.status(400).json(err);
+  } finally {
+    client.end();
+  }
 });
 
 app.listen(8800, () => {

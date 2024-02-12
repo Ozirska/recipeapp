@@ -1,16 +1,8 @@
-// api.js
-
 import axios from "axios";
-import { useAuth } from "./AuthContext";
 
 const getRecipesFunc = async (setRecipes) => {
   try {
-    const response = await axios.get(
-      "https://recipeapp-server.vercel.app/recipe",
-      {
-        withCredentials: true,
-      }
-    );
+    const response = await axios.get(`${process.env.REACT_APP_SERVER}/recipe`);
     setRecipes(response.data);
   } catch (err) {
     console.error("Error fetching recipes:", err);

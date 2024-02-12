@@ -10,19 +10,8 @@ export default function Home() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    axios
-      .post(
-        "https://recipeapp-server.vercel.app/logout",
-        {},
-        { withCredentials: true }
-      )
-      .then((res) => {
-        logout();
-        navigate("/");
-      })
-      .catch((err) => {
-        console.error("Error in axios request:", err);
-      });
+    logout();
+    navigate("/");
   };
 
   return (
