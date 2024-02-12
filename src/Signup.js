@@ -16,20 +16,18 @@ const validationSchema = Yup.object({
 });
 
 export default function Signup() {
-  const { login } = useAuth();
+  const { setUserData } = useAuth();
   const [serverError, setServerError] = useState(null);
 
   const navigate = useNavigate();
 
   const handleSubmit = () => {
     axios
-      .post("https://recipeapp-server.vercel.app/signup", formik.values, {
-        withCredentials: true,
-      })
+      .post(`${process.env.REACT_APP_SERVER}/signup`, formik.values)
       .then((res) => {
         if (res.status === 200) {
           localStorage.setItem("authToken", res.data.token);
-          login(res.data);
+          setUserData(res.data.user);
           navigate("/");
         } else {
           alert("No register user");

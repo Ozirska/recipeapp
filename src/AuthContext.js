@@ -8,21 +8,15 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [recipes, setRecipes] = useState([]);
 
-  const getUserDataToken = () => {
+  const getUserDataToken = async () => {
     const storedToken = localStorage.getItem("authToken");
 
     if (storedToken && storedToken !== "undefined") {
       const userIDFromToken = decodeToken(storedToken);
       axios
-        .get(
-          `https://recipeapp-server.vercel.app/auth?id=${userIDFromToken.id}`,
-
-          {
-            withCredentials: true,
-          }
-        )
+        .get(`${process.env.REACT_APP_SERVER}/auth?id=${userIDFromToken.id}`)
         .then((res) => {
-          setUser(res.data[0]);
+          setUser(res.data);
           setIsAuthenticated(true);
         });
     }
@@ -32,17 +26,16 @@ export const AuthProvider = ({ children }) => {
     getUserDataToken();
   }, []);
 
-  const login = () => {
-    getUserDataToken();
-  };
-
   const logout = () => {
-    deleteCookie("jwt");
-
     localStorage.removeItem("authToken");
 
     setUser(null);
     setIsAuthenticated(false);
+  };
+
+  const setUserData = (data) => {
+    setUser(data);
+    setIsAuthenticated(true);
   };
 
   // Function to delete a cookie
@@ -55,7 +48,7 @@ export const AuthProvider = ({ children }) => {
       value={{
         user,
         isAuthenticated,
-        login,
+        setUserData,
         logout,
         recipes,
         setRecipes,

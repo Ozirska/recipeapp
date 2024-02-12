@@ -1,14 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "./AuthContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import getRecipesFunc from "./getResipeFunc";
 
 export default function MyRecipe() {
-  const { user, recipes, setRecipes, getUserDataToken } = useAuth();
+  const {
+    user,
+    recipes,
+    setRecipes,
+    getUserDataToken,
+    isAuthenticated,
+    logout,
+  } = useAuth();
 
   const [userRecipes, setUserRecipes] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     getRecipesFunc(setRecipes);
@@ -20,28 +29,35 @@ export default function MyRecipe() {
   const openModal = (info) => {
     setSelectedRecipe(info);
   };
-
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
   const closeModal = () => {
     setSelectedRecipe(null);
   };
 
   const deleteRecipe = async (info) => {
     console.log(info);
+
     try {
       const response = await axios.post(
-        "https://recipeapp-server.vercel.app/delete",
-        info,
-        {
-          withCredentials: true,
-        }
+        `${process.env.REACT_APP_SERVER}/delete`,
+        info
       );
+      console.log(response);
 
       if (response.status === 200) {
+        const updatedUserRecipes = userRecipes.filter(
+          (recipe) => recipe.id !== info.id
+        );
+        setUserRecipes(updatedUserRecipes);
+
         getRecipesFunc(setRecipes);
         getUserDataToken();
       }
     } catch (err) {
-      console.error("Error fetching recipes:", err);
+      console.error("Error deleting recipe:", err);
     }
   };
 
@@ -51,6 +67,16 @@ export default function MyRecipe() {
         <div className="flex justify-between items-center	 p-20px">
           <h1 className="text-blue-600 text-3xl m-5">Logo</h1>
           {user && <h1 className="text-2xl font-medium mr-3">{user.name}</h1>}
+          {isAuthenticated ? (
+            <button
+              className="text-[20px] font-medium mr-4"
+              onClick={handleLogout}
+            >
+              / logout
+            </button>
+          ) : (
+            ""
+          )}
         </div>
         <br />
         <Link to="/" className="underline text-gray-500">
@@ -114,12 +140,14 @@ export default function MyRecipe() {
                   </tr>
                 </thead>
                 <tbody>
-                  {selectedRecipe.ingredients.map((el, index) => (
-                    <tr key={index}>
-                      <td>{el.name}</td>
-                      <td>{el.quantity}</td>
-                    </tr>
-                  ))}
+                  {console.log(selectedRecipe)}
+                  {selectedRecipe.ingredients &&
+                    JSON.parse(selectedRecipe.ingredients).map((el, index) => (
+                      <tr key={index}>
+                        <td>{el.name}</td>
+                        <td>{el.quantity}</td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
               <div className="lg:col-span-2">
