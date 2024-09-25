@@ -30,7 +30,10 @@ const Resipe = () => {
         <div className=" p-5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
           {recipes.map((recipe, i) => (
             <div key={i}>
-              <div className="w-[100px h-[180px]">
+              <div
+                className="w-[100px h-[180px] hover:cursor-pointer"
+                onClick={() => openModal(recipe)}
+              >
                 <img
                   className="object-cover w-full h-full"
                   src={recipe.photo_url}
@@ -55,11 +58,11 @@ const Resipe = () => {
           <div className="relative z-50 bg-white p-8 max-w-md mx-auto rounded-md shadow-lg">
             <span
               onClick={closeModal}
-              className="absolute top-0 right-0 p-4 cursor-pointer text-gray-600"
+              className="absolute top-0 right-0 px-4 cursor-pointer text-gray-600 text-[25px]"
             >
               &times;
             </span>
-            <div className="w-[300px h-[300px]">
+            <div className="w-[300px h-[300px] mb-4">
               <img
                 className="object-cover w-full h-full"
                 src={selectedRecipe.photo_url}
@@ -75,13 +78,16 @@ const Resipe = () => {
               <tbody>
                 {selectedRecipe.ingredients &&
                   JSON.parse(selectedRecipe.ingredients).map((el, index) => (
-                    <tr key={index}>
+                    <tr key={index} className="border-b border-gray-300">
                       <td>{el.name}</td>
                       <td>{el.quantity}</td>
                     </tr>
                   ))}
               </tbody>
             </table>
+            <h3 className="mt-4 text-left text-2xs font-semibold">
+              How to cook
+            </h3>
             <p>{selectedRecipe.description}</p>
           </div>
         </div>
