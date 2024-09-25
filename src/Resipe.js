@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { useAuth } from "./AuthContext";
 import getResipeFunc from "./getResipeFunc";
 
@@ -21,6 +20,9 @@ const Resipe = () => {
     setSelectedRecipe(null);
   };
 
+  console.log("selected", selectedRecipe);
+  console.log("recipes", recipes);
+
   return (
     <article>
       <h2 className="px-5">Recipe List</h2>
@@ -35,7 +37,10 @@ const Resipe = () => {
                   alt={`Recipe ${i + 1}`}
                 />
               </div>
-              <h1 className="text-center" onClick={() => openModal(recipe)}>
+              <h1
+                className="text-center hover:cursor-pointer hover:text-violet-400 uppercase mt-2"
+                onClick={() => openModal(recipe)}
+              >
                 {recipe.title}
               </h1>
             </div>
@@ -68,12 +73,13 @@ const Resipe = () => {
                 </tr>
               </thead>
               <tbody>
-                {selectedRecipe.ingredients.map((el, index) => (
-                  <tr key={index}>
-                    <td>{el.name}</td>
-                    <td>{el.quantity}</td>
-                  </tr>
-                ))}
+                {selectedRecipe.ingredients &&
+                  JSON.parse(selectedRecipe.ingredients).map((el, index) => (
+                    <tr key={index}>
+                      <td>{el.name}</td>
+                      <td>{el.quantity}</td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
             <p>{selectedRecipe.description}</p>
