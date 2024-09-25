@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+// import axios from "axios";
 import { useAuth } from "./AuthContext";
 import Resipe from "./Resipe";
 
@@ -17,7 +17,7 @@ export default function Home() {
   return (
     <div className="mx-auto min-h-screen p-5 bg-gradient-to-b from-amber-50 via-cyan-100 to-fuchsia-100">
       <div className="flex justify-between items-center	 p-20px">
-        <h1 className="text-blue-600 text-3xl m-5">Logo</h1>
+        <h1 className="text-black text-3xl m-5">Logo</h1>
         <div className="flex pt-2">
           {user && <h1 className="text-2xl font-medium mr-3">{user.name}</h1>}
           {isAuthenticated ? (
