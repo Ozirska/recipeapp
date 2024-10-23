@@ -20,8 +20,8 @@ const Resipe = () => {
     setSelectedRecipe(null);
   };
 
-  console.log("selected", selectedRecipe);
-  console.log("recipes", recipes);
+  // console.log("selected", selectedRecipe);
+  // console.log("recipes", recipes);
 
   return (
     <article>

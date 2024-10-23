@@ -72,7 +72,6 @@ const CustomInputIngredient = ({ name, placeholder }) => {
 
 export default function CreateRecipeForm() {
   const { user } = useAuth();
-  console.log(user);
 
   const [recipeimag, setRecipeimg] = useState("");
 
@@ -100,7 +99,7 @@ export default function CreateRecipeForm() {
           setRecipeimg(publicURL);
         },
         function (error) {
-          console.log(error); // Failure
+          console.log(error); // Fail
         }
       );
   };
