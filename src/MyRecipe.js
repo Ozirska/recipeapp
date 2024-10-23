@@ -38,14 +38,14 @@ export default function MyRecipe() {
   };
 
   const deleteRecipe = async (info) => {
-    console.log(info);
+    // console.log(info);
 
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_SERVER}/delete`,
         info
       );
-      console.log(response);
+      // console.log(response);
 
       if (response.status === 200) {
         const updatedUserRecipes = userRecipes.filter(
@@ -66,17 +66,20 @@ export default function MyRecipe() {
       <div className="mx-auto min-h-screen p-5 bg-gradient-to-b from-amber-50 via-cyan-100 to-fuchsia-100">
         <div className="flex justify-between items-center	 p-20px">
           <h1 className="text-blue-600 text-3xl m-5">Logo</h1>
-          {user && <h1 className="text-2xl font-medium mr-3">{user.name}</h1>}
-          {isAuthenticated ? (
-            <button
-              className="text-[20px] font-medium mr-4"
-              onClick={handleLogout}
-            >
-              / logout
-            </button>
-          ) : (
-            ""
-          )}
+
+          <div className="flex">
+            {user && <h1 className="text-2xl font-medium mr-3">{user.name}</h1>}
+            {isAuthenticated ? (
+              <button
+                className="text-[20px] font-medium mr-4"
+                onClick={handleLogout}
+              >
+                / logout
+              </button>
+            ) : (
+              ""
+            )}{" "}
+          </div>
         </div>
         <br />
         <Link to="/" className="underline text-gray-500">
@@ -113,7 +116,20 @@ export default function MyRecipe() {
             ))}
           </div>
         ) : (
-          <p>No recipes</p>
+          <div className="ml-3">
+            <p>You don't have recipes.</p>
+            <p>Would you like to crete?</p>
+            <Link
+              to="/create"
+              className="m-2 block w-24 text-center	bg-blue-50 hover:bg-blue-300 py-1  rounded"
+              style={{
+                boxShadow:
+                  "rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px",
+              }}
+            >
+              CREATE
+            </Link>
+          </div>
         )}
         {selectedRecipe && (
           <div className="fixed top-0 left-0 right-0 bottom-0 flex  justify-center z-50 bg-black bg-opacity-50 overflow-auto">
@@ -140,7 +156,6 @@ export default function MyRecipe() {
                   </tr>
                 </thead>
                 <tbody>
-                  {console.log(selectedRecipe)}
                   {selectedRecipe.ingredients &&
                     JSON.parse(selectedRecipe.ingredients).map((el, index) => (
                       <tr key={index}>
