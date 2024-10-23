@@ -3,6 +3,7 @@ import { useAuth } from "./AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import getRecipesFunc from "./getResipeFunc";
+import SelectedRecipe from "./SelectedRecipe";
 
 export default function MyRecipe() {
   const {
@@ -24,7 +25,7 @@ export default function MyRecipe() {
 
     const userRecipes = recipes.filter((el) => user?.id === el.userID);
     setUserRecipes(userRecipes);
-  }, [user?.id]);
+  }, [user?.id, recipes, setRecipes]);
 
   const openModal = (info) => {
     setSelectedRecipe(info);
@@ -38,14 +39,11 @@ export default function MyRecipe() {
   };
 
   const deleteRecipe = async (info) => {
-    // console.log(info);
-
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_SERVER}/delete`,
         info
       );
-      // console.log(response);
 
       if (response.status === 200) {
         const updatedUserRecipes = userRecipes.filter(
@@ -132,45 +130,10 @@ export default function MyRecipe() {
           </div>
         )}
         {selectedRecipe && (
-          <div className="fixed top-0 left-0 right-0 bottom-0 flex  justify-center z-50 bg-black bg-opacity-50 overflow-auto">
-            <div className="relative top-[10px] z-50 grid grid-cols-1 lg:grid-cols-2 gap-6  bg-white p-8 max-w-[80%] mx-auto rounded-md shadow-lg overflow-y-auto">
-              <span
-                onClick={closeModal}
-                className="absolute top-0 right-0 p-4 cursor-pointer text-gray-600"
-              >
-                &times;
-              </span>
-              <h1 className="lg:col-span-2 font-bold text-center uppercase">
-                {selectedRecipe.title}
-              </h1>
-
-              <img
-                className="object-cover w-full "
-                src={selectedRecipe.photo_url}
-                alt="Recipe"
-              />
-              <table className="mt-3  lg:ml-5">
-                <thead>
-                  <tr>
-                    <th colSpan="2">Ingredients</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {selectedRecipe.ingredients &&
-                    JSON.parse(selectedRecipe.ingredients).map((el, index) => (
-                      <tr key={index}>
-                        <td>{el.name}</td>
-                        <td>{el.quantity}</td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-              <div className="lg:col-span-2">
-                <h3 className="mt-3 mb-1 font-bold">Description:</h3>
-                <p>{selectedRecipe.description}</p>
-              </div>
-            </div>
-          </div>
+          <SelectedRecipe
+            selectedRecipe={selectedRecipe}
+            closeModal={closeModal}
+          />
         )}
       </div>
     </article>
