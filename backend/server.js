@@ -1,5 +1,5 @@
 const express = require("express");
-const mysql = require("mysql2");
+// const mysql = require("mysql2");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -88,7 +88,7 @@ app.post("/signup", async (req, res) => {
       const insertRes = await client.query(insertUserSql, insertUserValues);
       const data = insertRes.rows[0];
 
-      console.log("Data successfully inserted:", data);
+      // console.log("Data successfully inserted:", data);
       const token = createToken(data.id);
 
       return res.status(200).json({
@@ -166,7 +166,7 @@ app.post("/create", async (req, res) => {
 
     const insertRes = await client.query(sql, values);
 
-    console.log("Recipe successfully inserted:", insertRes.rows[0]);
+    // console.log("Recipe successfully inserted:", insertRes.rows[0]);
 
     return res.status(204).json();
   } catch (error) {
@@ -202,7 +202,7 @@ app.get("/recipe", async (req, res) => {
 
 app.post("/delete", async (req, res) => {
   const client = await getClient();
-  console.log("USERDATAID", req.body.id);
+  // console.log("USERDATAID", req.body.id);
 
   const q = "DELETE FROM recipes WHERE id = $1::int";
   const values = [req.body.id];
